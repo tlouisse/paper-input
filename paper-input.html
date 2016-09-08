@@ -142,12 +142,22 @@ style this element.
         autosave$="[[autosave]]"
         results$="[[results]]"
         accept$="[[accept]]"
-        multiple$="[[multiple]]">
+        multiple$="[[multiple]]"
+        errors="{{errors}}"
+        validatable-id="[[validatableId]]">
 
       <content select="[suffix]"></content>
 
       <template is="dom-if" if="[[errorMessage]]">
         <paper-input-error aria-live="assertive">[[errorMessage]]</paper-input-error>
+      </template>
+
+      <template is="dom-if" if="[[_showErrors(errors.splices)]]">
+        <paper-input-error aria-live="assertive" hidden$="">
+          <template is="dom-repeat" items="[[errors]]" filter="_showHighestPrio">
+            <div>[[item.message]]</div>
+          </template>
+        </paper-input-error>
       </template>
 
       <template is="dom-if" if="[[charCounter]]">
@@ -165,6 +175,20 @@ style this element.
     behaviors: [
       Polymer.IronFormElementBehavior,
       Polymer.PaperInputBehavior
-    ]
+    ],
+
+    /**
+     * Makes sure only error messages with the highest priority are shown.
+     * @param {Object} item The error object to be filtered out.
+     * @return {boolean} True if `value` has the highest priority.
+     */
+    _showHighestPrio: function (item) {
+      return item.priority < 1;
+    },
+
+    _showErrors: function(errors) {
+      return !this.errorMessage && errors;
+    }
+
   });
 </script>
